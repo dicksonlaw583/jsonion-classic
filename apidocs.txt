@@ -1,0 +1,71 @@
+JSOnion v1.1.0 API Reference
+
+Creating new top-level structures
+- jso_new_list(): Create a new JSOnion-compatible list and return its handle.
+- jso_new_map(): Create a new JSOnion-compatible map and return its handle.
+
+Cleaning up
+- jso_cleanup_list(list): Free the memory used by the JSOnion-compatible list list and any nested JSOnion-compatible data structures within it.
+- jso_cleanup_map(map): Free the memory used by the JSOnion-compatible map map and any nested JSOnion-compatible data structures within it.
+
+Adding elements
+- jso_list_add_boolean(list, bool): Append the boolean value bool to the JSOnion-compatible list list.
+- jso_list_add_integer(list, int): Append the integer value int to the JSOnion-compatible list list.
+- jso_list_add_null(list): Append the null value to the JSOnion-compatible list list.
+- jso_list_add_real(list, val): Append the real value val to the JSOnion-compatible list list.
+- jso_list_add_string(list, str): Append the string value str to the JSOnion-compatible list list.
+- jso_list_add_sublist(list, sublist): Append the JSOnion-compatible list sublist to the JSOnion-compatible list list as a sublist.
+- jso_list_add_submap(list, submap): Append the JSOnion-compatible map submap to the JSOnion-compatible list list as a submap.
+- jso_map_add_boolean(map, key, bool): Add the boolean value bool to the JSOnion-compatible map map under the key key.
+- jso_map_add_integer(map, key, int): Add the integer value int to the JSOnion-compatible map map under the key key.
+- jso_map_add_null(map, key): Add the null value to the JSOnion-compatible map map under the key key.
+- jso_map_add_real(map, key, val): Add the real value val to the JSOnion-compatible map map under the key key.
+- jso_map_add_string(map, key, str): Add the string value str to the JSOnion-compatible map map under the key key.
+- jso_map_add_sublist(map, key, sublist): Add the JSOnion-compatible list sublist to the JSOnion-compatible map map as a sublist under the key key.
+- jso_map_add_submap(map, key, submap): Add the JSOnion-compatible map submap to the JSOnion-compatible map map as a submap under the key key.
+
+Retrieving elements
+- jso_list_check(list, index1, key_or_index2, …, key_or_index15): Recursively access the JSOnion-compatible list list using the indices and/or keys in sequence, returning whether a value exists at the final point of recursion.
+- jso_list_get(list, index): Return the value stored at position index of the JSOnion-compatible list list.
+- jso_list_get_type(list, index): Return the type of the value stored at position index of the JSOnion-compatible list list. See “Type constants” for a list of possible values.
+- jso_list_lookup(list, index1, key_or_index2, …, key_or_index15): Recursively access the JSOnion-compatible list list using the indices and/or keys in sequence, returning the value that exists at the final point of recursion.
+- jso_list_lookup_type(list, index1, key_or_index2, …, key_or_index15): Recursively access the JSOnion-compatible list list using the indices and/or keys in sequence, returning the type of value that exists at the final point of recursion. See “Type constants” for a list of possible values.
+- jso_map_check(list, key1, key_or_index2, …, key_or_index15): Recursively access the JSOnion-compatible map map using the indices and/or keys in sequence, returning whether a value exists at the final point of recursion.
+- jso_map_get(map, index): Return the value stored at position index of the JSOnion-compatible map map.
+- jso_map_get_type(map, index): Return the type of the value stored at position index of the JSOnion-compatible map map. See “Type constants” for a list of possible values.
+- jso_map_lookup(list, key1, key_or_index2, …, key_or_index15): Recursively access the JSOnion-compatible map map using the indices and/or keys in sequence, returning the value that exists at the final point of recursion.
+- jso_map_lookup_type(list, key1, key_or_index2, …, key_or_index15): Recursively access the JSOnion-compatible map map using the indices and/or keys in sequence, returning the type of value that exists at the final point of recursion. See “Type constants” for a list of possible values.
+
+Type constants
+- jso_type_boolean: Boolean type.
+- jso_type_list: List type.
+- jso_type_map: Map type.
+- jso_type_null: Null type.
+- jso_type_real: Numeric type (integer or real).
+- jso_type_string: String type.
+
+Special constants
+- jso_value_of_null: The value to return when a null value is found. Set to undefined by default, but can be changed to any other value as you wish.
+
+Encoding (GM primitive types, JSOnion data structures --> JSON)
+- jso_encode_boolean(bool): Return a JSON string representation of the boolean value bool.
+- jso_encode_integer(int): Return a JSON string representation of the integer value int.
+- jso_encode_list(list): Return a JSON string representation of the JSOnion-compatible list  list.
+- jso_encode_map(map): Return a JSON string representation of the JSOnion-compatible map  map.
+- jso_encode_null(): Return a JSON string representation of the null value.
+- jso_encode_real(val): Return a JSON string representation of the real value val.
+- jso_encode_string(str): Return a JSON string representation of the string value str.
+
+Decoding (JSON --> GM primitive types, JSOnion data structures)
+Note: These functions always decode and return the first complete structure or value of the type indicated, searching from the beginning of the JSON string.
+- jso_decode_boolean(json): Return a boolean value represented by the JSON string json.
+- jso_decode_integer(json): Return an integer value represented by the JSON string json.
+- jso_decode_list(json): Return a JSOnion-compatible list represented by the JSON string json.
+- jso_decode_map(json): Return a JSOnion-compatible map represented by the JSON string json.
+- jso_decode_null(json): Return a null value represented by the JSON string json.
+- jso_decode_real(json): Return a real value represented by the JSON string json.
+- jso_decode_string(json): Return a string value represented by the JSON string json.
+
+Comparing JSOnion data structures
+- jso_compare_list(list1, list2): Return whether the JSOnion-compatible lists list1 and list2 are equivalent. Two JSOnion-compatible lists are equivalent if they are of the same size and have the same content arranged in the same order.
+- jso_compare_map(map1, map2): Return whether the JSOnion-compatible maps map1 and map2 are equivalent. Two JSOnion-compatible maps are equivalent if they are of the same size, have the same set of keys, and the corresponding values in each map of every key are also the same.
