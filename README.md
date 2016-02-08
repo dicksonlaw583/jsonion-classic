@@ -8,4 +8,4 @@ JSOnion is a full-featured alternative for the built-in `json_encode()` and `jso
 - GameMaker 8.1 or Studio 1.x
 
 ## Installation
-Simply drag JSOnion.gml into your open project and import `constants.txt` as macros. If you wish to run the automated test suite, drag JSOnion_test.gml into your open project and run `jso_test_all();`.
+Simply drag JSOnion.gml into your open project and import `constants.txt` as macros. If you wish to run the automated test suite, drag `JSOnion_test.gml` into your open project and run `jso_test_all();`.
