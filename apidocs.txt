@@ -45,7 +45,7 @@ Type constants
 - jso_type_string: String type.
 
 Special constants
-- jso_value_of_null: The value to return when a null value is found. Set to undefined by default, but can be changed to any other value as you wish.
+- jso_value_of_null: The value to return when a null value is found. Set to an empty string by default, but can be changed to any other value (e.g. undefined) as you wish.
 
 Encoding (GM primitive types, JSOnion data structures --> JSON)
 - jso_encode_boolean(bool): Return a JSON string representation of the boolean value bool.
