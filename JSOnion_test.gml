@@ -152,6 +152,7 @@
     _test_jso_compare();
     _test_jso_decode();
     _test_jso_lookup();
+    _test_jso_clone();
     _test_jso_bugs();
     __jso_gmt_test_all();
     b = current_time;
@@ -1143,6 +1144,34 @@
     structure = jso_decode_list(json);
     assert_false(jso_list_check(structure, 2, ""), "jso_list_check() found an inexistent entry! (multiple arguments, nested map, bad key)");
     jso_cleanup_list(structure);
+}
+
+#define _test_jso_clone
+{
+    /**
+    _test_jso_clone(): Test jso_clone_*() functions.
+    JSOnion version: 1.1.0
+    */
+    
+    var expected, actual, original;
+    
+    //jso_clone_map()
+    original = jso_decode_map('{"a":37, "b":["307", null, 27, {"C": "DELTA"}]}');
+    actual = jso_clone_map(original);
+    assert_true(actual >= 0, "jso_clone_map() failed to create a new map.");
+    assert_false(original == actual, "jso_clone_map() is not a clone.");
+    assert_true(jso_compare_maps(original, actual), "jso_clone_map() didn't make an equivalent clone.");
+    ds_map_destroy(actual);
+    ds_map_destroy(original);
+    
+    //jso_clone_list()
+    original = jso_decode_list('["Alpha", 2, null, {"a":37, "b":["307", null, 27, {"C": "DELTA"}]}]');
+    actual = jso_clone_list(original);
+    assert_true(actual >= 0, "jso_clone_list() failed to create a new list.");
+    assert_false(original == actual, "jso_clone_list() is not a clone.");
+    assert_true(jso_compare_lists(original, actual), "jso_clone_list() didn't make an equivalent clone.");
+    ds_list_destroy(actual);
+    ds_list_destroy(original);
 }
 
 #define _test_jso_bugs
