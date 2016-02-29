@@ -1635,6 +1635,23 @@
     return result;
 }
 
+#define jso_map_check_path
+///jso_map_check_path(map, path)
+{
+    /**
+    jso_map_check_path(map, path): Recursively look up slash-delimited keys/indices in the top-level map <map>, return whether a value exists there.
+    */
+    
+    //Call lookup kernel and cleanup
+    var key_list, result;
+    key_list = _jso_lookup_path_decompose(argument1);
+    result = _jso_lookup_kernel(argument0, jso_type_map, 0, key_list);
+    ds_list_destroy(key_list);
+    
+    //Done
+    return result;
+}
+
 #define jso_list_check
 ///jso_list_check(list, key1, [key2], [...])
 {
@@ -1657,6 +1674,23 @@
     //Call lookup kernel and cleanup
     var result;
     result = _jso_lookup_kernel(argument[0], jso_type_list, 0, key_list);
+    ds_list_destroy(key_list);
+    
+    //Done
+    return result;
+}
+
+#define jso_list_check_path
+///jso_list_check_path(list, path)
+{
+    /**
+    jso_list_check_path(list, path): Recursively look up slash-delimited keys/indices in the top-level list <list>, return whether a value exists there.
+    */
+    
+    //Call lookup kernel and cleanup
+    var key_list, result;
+    key_list = _jso_lookup_path_decompose(argument1);
+    result = _jso_lookup_kernel(argument0, jso_type_list, 0, key_list);
     ds_list_destroy(key_list);
     
     //Done
@@ -1691,6 +1725,23 @@
     return result;
 }
 
+#define jso_map_lookup_path
+///jso_map_lookup_path(map, path)
+{
+    /**
+    jso_map_lookup_path(map, path): Recursively look up slash-delimited keys/indices in the top-level map <map>, return the value that exists there.
+    */
+    
+    //Call lookup kernel and cleanup
+    var key_list, result;
+    key_list = _jso_lookup_path_decompose(argument1);
+    result = _jso_lookup_kernel(argument0, jso_type_map, 1, key_list);
+    ds_list_destroy(key_list);
+    
+    //Done
+    return result;
+}
+
 #define jso_map_lookup_type
 ///jso_map_lookup_type(map, key1, [key2], [...])
 {
@@ -1713,6 +1764,23 @@
     //Call lookup kernel and cleanup
     var result;
     result = _jso_lookup_kernel(argument[0], jso_type_map, 2, key_list);
+    ds_list_destroy(key_list);
+    
+    //Done
+    return result;
+}
+
+#define jso_map_lookup_path_type
+///jso_map_lookup_path_type(map, path)
+{
+    /**
+    jso_map_lookup_path_type(map, path): Recursively look up slash-delimited keys/indices in the top-level map <map>, return the type of value that exists there.
+    */
+    
+    //Call lookup kernel and cleanup
+    var key_list, result;
+    key_list = _jso_lookup_path_decompose(argument1);
+    result = _jso_lookup_kernel(argument0, jso_type_map, 2, key_list);
     ds_list_destroy(key_list);
     
     //Done
@@ -1747,6 +1815,23 @@
     return result;
 }
 
+#define jso_list_lookup_path
+///jso_list_lookup_path(list, path)
+{
+    /**
+    jso_list_lookup_path(list, path): Recursively look up slash-delimited keys/indices in the top-level list <list>, return the value that exists there.
+    */
+    
+    //Call lookup kernel and cleanup
+    var key_list, result;
+    key_list = _jso_lookup_path_decompose(argument1);
+    result = _jso_lookup_kernel(argument0, jso_type_list, 1, key_list);
+    ds_list_destroy(key_list);
+    
+    //Done
+    return result;
+}
+
 #define jso_list_lookup_type
 ///jso_list_lookup_type(list, key1, [key2], [...])
 {
@@ -1769,6 +1854,23 @@
     //Call lookup kernel and cleanup
     var result;
     result = _jso_lookup_kernel(argument[0], jso_type_list, 2, key_list);
+    ds_list_destroy(key_list);
+    
+    //Done
+    return result;
+}
+
+#define jso_list_lookup_path_type
+///jso_list_lookup_path_type(list, path)
+{
+    /**
+    jso_list_lookup_path_type(list, path): Recursively look up slash-delimited keys/indices in the top-level list <list>, return the type of value that exists there.
+    */
+    
+    //Call lookup kernel and cleanup
+    var key_list, result;
+    key_list = _jso_lookup_path_decompose(argument1);
+    result = _jso_lookup_kernel(argument0, jso_type_list, 2, key_list);
     ds_list_destroy(key_list);
     
     //Done
@@ -1889,14 +1991,17 @@
             //Check for existence of the index in the current list
             case jso_type_list:
                 if (is_string(k)) {
-                    switch (task_type) {
-                        case 0:
-                            return false;
-                        break;
-                        default:
-                            show_error("Cannot use string indices for nested lists in " + type_string + " lookup.", true);
-                        break;
+                    if (string_digits(k) != k) {
+                        switch (task_type) {
+                            case 0:
+                                return false;
+                            break;
+                            default:
+                                show_error("Cannot use string indices for nested lists in " + type_string + " lookup.", true);
+                            break;
+                        }
                     }
+                    k = real(k);
                 }
                 if (k >= ds_list_size(data)) {
                     switch (task_type) {
@@ -1937,6 +2042,28 @@
             return type;
         break;
     }
+}
+
+#define _jso_lookup_path_decompose
+{
+    /**
+    _jso_lookup_path_decompose(path): Decompose a slash-delimited path into a list accepted by _jso_lookup_kernel().
+    - path: The slash-delimited path to decompose.
+    
+    PLEASE DO NOT CALL DIRECTLY.
+    */
+    var path, list, i, slash, slashes, pos;
+    path = argument0;
+    list = ds_list_create();
+    slash = '/';
+    slashes = string_count(slash, path);
+    repeat (slashes) {
+      pos = string_pos(slash, path);
+      ds_list_add(list, string_copy(path, 1, pos-1));
+      path = string_delete(path, 1, pos);
+    }
+    ds_list_add(list, path);
+    return list;
 }
 
 #define _jso_is_whitespace_char

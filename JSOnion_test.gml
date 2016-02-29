@@ -152,6 +152,7 @@
     _test_jso_compare();
     _test_jso_decode();
     _test_jso_lookup();
+    _test_jso_lookup_path();
     _test_jso_clone();
     _test_jso_bugs();
     __jso_gmt_test_all();
@@ -1143,6 +1144,213 @@
     json = '["one", 2, {"three":3}, true, 5]';
     structure = jso_decode_list(json);
     assert_false(jso_list_check(structure, 2, ""), "jso_list_check() found an inexistent entry! (multiple arguments, nested map, bad key)");
+    jso_cleanup_list(structure);
+}
+
+#define _test_jso_lookup_path
+{
+    /**
+    _test_jso_lookup_path(): Test core jso_*_lookup_path() and jso_*_check_path() functions for nested structures.
+    JSOnion version: 1.1.0
+    */
+    var json, structure, expected, actual;
+    
+    //jso_map_check_path(): Single argument --- exists
+    json = '{ "one" : 1, "two" : 2, "three" : 3 }';
+    structure = jso_decode_map(json);
+    assert_true(jso_map_check_path(structure, "one"), "jso_map_check_path() failed to find existing entry! (single argument)");
+    jso_cleanup_map(structure);
+    
+    //jso_map_lookup_path(): Single argument --- exists
+    json = '{ "one" : 1, "two" : 2, "three" : 3 }';
+    structure = jso_decode_map(json);
+    expected = 1;
+    actual = jso_map_lookup_path(structure, "one")
+    assert_equal(expected, actual, "jso_map_lookup_path() found the wrong entry! (single argument)");
+    jso_cleanup_map(structure);
+    
+    //jso_map_lookup_path_type(): Single argument --- exists
+    json = '{ "one" : -1, "two" : true, "three" : "trap" }';
+    structure = jso_decode_map(json);
+    expected = jso_type_real;
+    actual = jso_map_lookup_path_type(structure, "one")
+    assert_equal(expected, actual, "jso_map_lookup_path_type() found the wrong type! (single argument)");
+    jso_cleanup_map(structure);
+    
+    //jso_map_check_path(): Single argument --- doesn't exist
+    json = '{ "one" : 1, "two" : 2, "three" : 3 }';
+    structure = jso_decode_map(json);
+    assert_false(jso_map_check_path(structure, "four"), "jso_map_check_path() found an inexistent entry! (single argument)");
+    jso_cleanup_map(structure);
+    
+    //jso_map_check_path(): Single argument --- doesn't exist
+    json = '{ "one" : 1, "two" : 2, "three" : 3, "four" : { "A":true, "B":false } }';
+    structure = jso_decode_map(json);
+    assert_false(jso_map_check_path(structure, "A"), "jso_map_check_path() found an inexistent entry! (single argument, nested)");
+    jso_cleanup_map(structure);
+    
+    //jso_map_check_path(): Multiple arguments (recurse) --- exists
+    json = '{ "one" : 1, "two" : 2, "three" : 3, "four" : { "A":true, "B":false } }';
+    structure = jso_decode_map(json);
+    assert_true(jso_map_check_path(structure, "four/A"), "jso_map_check_path() failed to find existing entry! (multiple arguments)");
+    jso_cleanup_map(structure);
+    
+    //jso_map_lookup_path(): Multiple arguments (recurse) --- exists
+    json = '{ "one" : 1, "two" : 2, "three" : 3, "four" : { "A":true, "B":false } }';
+    structure = jso_decode_map(json);
+    expected = true;
+    actual = jso_map_lookup_path(structure, "four/A");
+    assert_equal(expected, actual, "jso_map_lookup_path() found the wrong entry! (multiple arguments)");
+    jso_cleanup_map(structure);
+    
+    //jso_map_lookup_path_type(): Multiple arguments (recurse) --- exists
+    json = '{ "one" : 1, "two" : 2, "three" : 3, "four" : { "A":true, "B":"trap" } }';
+    structure = jso_decode_map(json);
+    expected = jso_type_boolean;
+    actual = jso_map_lookup_path_type(structure, "four/A");
+    assert_equal(expected, actual, "jso_map_lookup_path_type() found the wrong type! (multiple arguments)");
+    jso_cleanup_map(structure);
+    
+    //jso_map_check_path(): Multiple arguments (recurse) --- doesn't exist
+    json = '{ "one" : 1, "two" : 2, "three" : 3, "four" : { "A":true, "B":false } }';
+    structure = jso_decode_map(json);
+    assert_false(jso_map_check_path(structure, "four/C"), "jso_map_check_path() found an inexistent entry! (multiple arguments, 1)");
+    jso_cleanup_map(structure);
+    
+    //jso_map_check_path(): Multiple arguments (recurse) --- doesn't exist
+    json = '{ "one" : 1, "two" : 2, "three" : 3, "four" : { "A":true, "B":false } }';
+    structure = jso_decode_map(json);
+    assert_false(jso_map_check_path(structure, "three/"), "jso_map_check_path() found an inexistent entry! (multiple arguments, 2)");
+    jso_cleanup_map(structure);
+    
+    //jso_map_check_path(): Multiple arguments with nested list --- exists
+    json = '{ "one" : 1, "two" : 2, "three" : 3, "four" : [ "A", true, ["B", false] ] }';
+    structure = jso_decode_map(json);
+    assert_true(jso_map_check_path(structure, "four/2/1"), "jso_map_check_path() failed to find an existing entry! (multiple arguments, nested)");
+    jso_cleanup_map(structure);
+    
+    //jso_map_lookup_path(): Multiple arguments with nested list --- exists
+    json = '{ "one" : 1, "two" : 2, "three" : 3, "four" : [ "A", true, ["B", false] ] }';
+    structure = jso_decode_map(json);
+    expected = false;
+    actual = jso_map_lookup_path(structure, "four/2/1");
+    assert_equal(expected, actual, "jso_map_lookup_path() failed to find an existing entry! (multiple arguments, nested)");
+    jso_cleanup_map(structure);
+    
+    //jso_map_lookup_path_type(): Multiple arguments with nested list --- exists
+    json = '{ "one" : 1, "two" : 2, "three" : 3, "four" : [ "A", true, [false, "false"] ] }';
+    structure = jso_decode_map(json);
+    expected = jso_type_string;
+    actual = jso_map_lookup_path_type(structure, "four/2/1");
+    assert_equal(expected, actual, "jso_map_lookup_path_type() found the wrong type! (multiple arguments, nested)");
+    jso_cleanup_map(structure);
+    
+    //jso_map_check_path(): Multiple arguments with nested list --- wrong type
+    json = '{ "one" : 1, "two" : 2, "three" : 3, "four" : [ "A", true, ["B", false] ] }';
+    structure = jso_decode_map(json);
+    assert_false(jso_map_check_path(structure, "four/A/1"), "jso_map_check_path() found an inexistent entry! (multiple arguments, nested, wrong type)");
+    jso_cleanup_map(structure);
+    
+    //jso_map_check_path(): Multiple arguments with nested list --- index overflow
+    json = '{ "one" : 1, "two" : 2, "three" : 3, "four" : [ "A", true, ["B", false] ] }';
+    structure = jso_decode_map(json);
+    assert_false(jso_map_check_path(structure, "four/2/3"), "jso_map_check_path() found an inexistent entry! (multiple arguments, nested, index overflow)");
+    jso_cleanup_map(structure);
+    
+    //jso_list_check_path(): Single argument --- exists
+    json = '["one", 2, "three", true, 5]';
+    structure = jso_decode_list(json);
+    assert_true(jso_list_check_path(structure, "2"), "jso_list_check_path() failed to find an existing index! (single argument)");
+    jso_cleanup_list(structure);
+    
+    //jso_list_lookup_path(): Single argument --- exists
+    json = '["one", 2, "three", true, 5]';
+    structure = jso_decode_list(json);
+    expected = "three";
+    actual = jso_list_lookup_path(structure, "2");
+    assert_equal(expected, actual, "jso_list_lookup_path() found the wrong index! (single argument)");
+    jso_cleanup_list(structure);
+    
+    //jso_list_lookup_path_type(): Single argument --- exists
+    json = '["one", 2, "three", true, 5]';
+    structure = jso_decode_list(json);
+    expected = jso_type_string;
+    actual = jso_list_lookup_path_type(structure, "2");
+    assert_equal(expected, actual, "jso_list_lookup_path_type() found the wrong type! (single argument)");
+    jso_cleanup_list(structure);
+    
+    //jso_list_check_path(): Single argument --- doesn't exist
+    json = '["one", 2, "three", true, 5]';
+    structure = jso_decode_list(json);
+    assert_false(jso_list_check_path(structure, "5"), "jso_list_check_path() found an inexistent index! (single argument)");
+    jso_cleanup_list(structure);
+    
+    //jso_list_check_path(): Multiple arguments (recurse) --- exists
+    json = '["one", 2, ["three", 3], true, 5]';
+    structure = jso_decode_list(json);
+    assert_true(jso_list_check_path(structure, "2/1"), "jso_list_check_path() failed to find an existing index! (multiple arguments)");
+    jso_cleanup_list(structure);
+    
+    //jso_list_lookup_path(): Multiple arguments (recurse) --- exists
+    json = '["one", 2, ["three", 3], true, 5]';
+    structure = jso_decode_list(json);
+    expected = 3;
+    actual = jso_list_lookup_path(structure, "2/1");
+    assert_equal(expected, actual, "jso_list_lookup_path() failed to find an existing index! (multiple arguments)");
+    jso_cleanup_list(structure);
+    
+    //jso_list_lookup_path_type(): Multiple arguments (recurse) --- exists
+    json = '["one", 2, ["three", 3], true, 5]';
+    structure = jso_decode_list(json);
+    expected = jso_type_real;
+    actual = jso_list_lookup_path_type(structure, "2/1");
+    assert_equal(expected, actual, "jso_list_lookup_path_type() found the wrong type! (multiple arguments)");
+    jso_cleanup_list(structure);
+    
+    //jso_list_check_path(): Multiple arguments (recurse) --- doesn't exist, inner index overflow
+    json = '["one", 2, ["three", 3], true, 5]';
+    structure = jso_decode_list(json);
+    assert_false(jso_list_check_path(structure, "2/2"), "jso_list_check_path() found an inexistent index! (multiple arguments, inner index overflow)");
+    jso_cleanup_list(structure);
+    
+    //jso_list_check_path(): Multiple arguments (recurse) --- doesn't exist, trying to index single entry
+    json = '["one", 2, ["three", 3], true, 5]';
+    structure = jso_decode_list(json);
+    assert_false(jso_list_check_path(structure, "1/0"), "jso_list_check_path() found an inexistent index! (multiple arguments, indexing single entry)");
+    jso_cleanup_list(structure);
+    
+    //jso_list_check_path(): Multiple arguments with nested map --- exists
+    json = '["one", 2, {"three":3}, true, 5]';
+    structure = jso_decode_list(json);
+    assert_true(jso_list_check_path(structure, "2/three"), "jso_list_check_path() failed to find an existing entry! (multiple arguments, nested map)");
+    jso_cleanup_list(structure);
+    
+    //jso_list_lookup_path(): Multiple arguments with nested map --- exists
+    json = '["one", 2, {"three":3}, true, 5]';
+    structure = jso_decode_list(json);
+    expected = 3;
+    actual = jso_list_lookup_path(structure, "2/three");
+    assert_equal(expected, actual, "jso_list_lookup_path() failed to find an existing entry! (multiple arguments, nested map)");
+    jso_cleanup_list(structure);
+    
+    //jso_list_lookup_path_type(): Multiple arguments with nested map --- exists
+    json = '["one", 2, {"three":false}, true, 5]';
+    structure = jso_decode_list(json);
+    expected = jso_type_boolean;
+    actual = jso_list_lookup_path_type(structure, "2/three");
+    assert_equal(expected, actual, "jso_list_lookup_path_type() found the wrong type! (multiple arguments, nested map)");
+    jso_cleanup_list(structure);
+    
+    //jso_list_exists(): Multiple arguments with nested map --- doesn't exist, key on single entry
+    json = '["one", 2, {"three":3}, true, 5]';
+    structure = jso_decode_list(json);
+    assert_false(jso_list_check_path(structure, "1/"), "jso_list_check_path() found an inexistent entry! (multiple arguments, nested map, key on single entry)");
+    jso_cleanup_list(structure);
+    
+    //jso_list_exists(): Multiple arguments with nested map --- doesn't exist, bad key
+    json = '["one", 2, {"three":3}, true, 5]';
+    structure = jso_decode_list(json);
+    assert_false(jso_list_check_path(structure, "2/"), "jso_list_check_path() found an inexistent entry! (multiple arguments, nested map, bad key)");
     jso_cleanup_list(structure);
 }
 
