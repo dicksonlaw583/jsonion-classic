@@ -3,6 +3,5 @@ jso_type_string=1
 jso_type_list=2
 jso_type_map=3
 jso_type_boolean=4
+jso_type_null=5
 jso_value_of_null=""
-GM_build_date=41893.076738912
-GM_version='1.0.0.0'
