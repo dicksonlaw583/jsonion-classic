@@ -175,7 +175,7 @@ if (jso_compare_maps(gamegeisha_shop, codedanna_shop)) {
 ```
 ------------
 
-Comparing two Lists
+## Comparing two Lists
 ```
 //Get two lists from JSON strings
 correct_sequence = jso_decode_list('["D", "A", "C", "B"]');
