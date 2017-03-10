@@ -9,3 +9,6 @@ JSOnion is a full-featured alternative for the built-in `json_encode()` and `jso
 
 ## Installation
 Simply drag JSOnion.gml into your open project and import `constants.txt` as macros. If you wish to run the automated test suite, drag `JSOnion_test.gml` into your open project and run `jso_test_all();`.
+
+## License
+JSOnion is available under the MIT License. You may freely adapt and use this library in commercial and non-commercial projects.
